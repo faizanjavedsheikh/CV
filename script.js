@@ -5,18 +5,19 @@ const scroll = new LocomotiveScroll({
     lerp: 0.03,
     multiplier: 0.5,
     reloadOnContextChange: true,
-    touchMultiplier: 1.5,
+    touchMultiplier: 2.5,
     smoothMobile: true,
     resetNativeScroll: true,
     smartphone: {
         smooth: true,
-        multiplier: 0.5,
-        lerp: 0.03
+        multiplier: 1.0,
+        lerp: 0.05,
+        touchMultiplier: 2.5
     },
     tablet: {
         smooth: true,
-        multiplier: 0.5,
-        lerp: 0.03,
+        multiplier: 0.8,
+        lerp: 0.04,
         breakpoint: 1024
     }
 });
@@ -100,6 +101,13 @@ initializeMagneticDots();
 // Also initialize on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
     initializeMagneticDots();
+    const aboutSection = document.querySelector('#about');
+    if (aboutSection) {
+        // Small delay to ensure fonts are loaded
+        setTimeout(() => {
+            aboutSection.classList.add('visible');
+        }, 100);
+    }
 });
 
 // Handle window resize with debounce

@@ -13,6 +13,47 @@
   --dot-opacity: 0.8;
 }
 
+/* Font loading optimization */
+@font-face {
+  font-family: 'Comfortaa';
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+}
+
+@font-face {
+  font-family: 'Source Code Pro';
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap');
+}
+
+/* First section fade animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#about .content {
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+  animation-play-state: paused;
+}
+
+#about.visible .content {
+  animation-play-state: running;
+}
+
 * {
   margin: 0;
   padding: 0;
