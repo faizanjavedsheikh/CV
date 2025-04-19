@@ -1,23 +1,23 @@
-// Initialize Locomotive Scroll
+// Initialize Locomotive Scroll with optimized settings
 const scroll = new LocomotiveScroll({
     el: document.querySelector('[data-scroll-container]'),
     smooth: true,
-    lerp: 0.03,
-    multiplier: 0.5,
+    lerp: 0.03,              // Increased for faster response
+    multiplier: 0.5,         // Increased for faster scrolling
     reloadOnContextChange: true,
-    touchMultiplier: 2.5,
+    touchMultiplier: 2.5,    // Increased for faster touch scrolling
     smoothMobile: true,
     resetNativeScroll: true,
     smartphone: {
         smooth: true,
-        multiplier: 1.0,
-        lerp: 0.05,
-        touchMultiplier: 2.5
+        multiplier: 1.5,     // Increased for faster scrolling
+        lerp: 0.1,           // Increased for faster response
+        touchMultiplier: 3.5 // Increased for faster touch scrolling
     },
     tablet: {
         smooth: true,
-        multiplier: 0.8,
-        lerp: 0.04,
+        multiplier: 1.2,     // Increased for faster scrolling
+        lerp: 0.1,           // Increased for faster response
         breakpoint: 1024
     }
 });
@@ -139,14 +139,71 @@ const magneticConfig = {
 let lastMouseUpdate = 0;
 const mouseThrottle = 1000 / magneticConfig.fps;
 
-// Handle scroll events
+// Performance optimizations
+let ticking = false;
+let lastScrollTop = 0;
+
+// Optimize scroll performance
 scroll.on('scroll', () => {
-    isScrolling = true;
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-        isScrolling = false;
-    }, 150);
+    if (!ticking) {
+        window.requestAnimationFrame(() => {
+            const currentScrollTop = scroll.scroll.instance.scroll.y;
+            
+            // Only update if scroll position has changed significantly
+            if (Math.abs(currentScrollTop - lastScrollTop) > 1) {
+                lastScrollTop = currentScrollTop;
+                
+                // Update magnetic dots only when not scrolling fast
+                if (Math.abs(scroll.scroll.instance.delta.y) < 5) {
+                    updateDots();
+                }
+            }
+            
+            ticking = false;
+        });
+        
+        ticking = true;
+    }
 });
+
+// Optimize magnetic dots update
+function updateDots() {
+    if (isScrolling) return;
+    
+    const dots = document.querySelectorAll('.magnetic-dot');
+    const container = document.querySelector('.magnetic-dots');
+    if (!container) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    const containerTop = containerRect.top;
+    const containerLeft = containerRect.left;
+    
+    // Only update dots that are in or near the viewport
+    dots.forEach(dot => {
+        const rect = dot.getBoundingClientRect();
+        const dotTop = rect.top;
+        const dotLeft = rect.left;
+        
+        // Check if dot is in viewport (with some padding)
+        if (dotTop > -100 && dotTop < window.innerHeight + 100 &&
+            dotLeft > -100 && dotLeft < window.innerWidth + 100) {
+            
+            const dx = currentX - (dotLeft - containerLeft + rect.width / 2);
+            const dy = currentY - (dotTop - containerTop + rect.height / 2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < magneticConfig.maxDistance) {
+                const force = (1 - distance / magneticConfig.maxDistance) * magneticConfig.strength;
+                const moveX = dx * force;
+                const moveY = dy * force;
+                
+                dot.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+            } else {
+                dot.style.transform = 'translate(-50%, -50%)';
+            }
+        }
+    });
+}
 
 document.addEventListener('mousemove', (e) => {
     const now = performance.now();
