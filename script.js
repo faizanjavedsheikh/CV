@@ -16,8 +16,9 @@ const scroll = new LocomotiveScroll({
     },
     tablet: {
         smooth: true,
-        multiplier: 1.2,     // Increased for faster scrolling
+        multiplier: 1.5,     // Increased for faster scrolling
         lerp: 0.1,           // Increased for faster response
+        touchMultiplier: 3.5, // Increased for faster touch scrolling
         breakpoint: 1024
     }
 });
@@ -154,7 +155,7 @@ scroll.on('scroll', () => {
                 lastScrollTop = currentScrollTop;
                 
                 // Update magnetic dots only when not scrolling fast
-                if (Math.abs(scroll.scroll.instance.delta.y) < 5) {
+                if (Math.abs(scroll.scroll.instance.delta.y) < 4) {
                     updateDots();
                 }
             }
